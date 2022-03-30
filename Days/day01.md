@@ -62,7 +62,7 @@ Common-Logging，JDBC，Dubbo等等
 >**倒序排序**小节，介绍了倒序排序的实现：先对排序字段（sort_key）逐字节取反，然后对排序字段进行正序排序，最终得到倒序排序的记录。
 >
 >最后，介绍了如何通过 optimizer trace 窥探文件排序的更多细节
-~~~
+
 ### 已读文章
 - [x] [带你一步一步深入了解 MySQL Order By 文件排序](https://mp.weixin.qq.com/s/YBWbEahWp0uVN_n9jAFU0A)
 - [x] [MySQL 查询语句的 limit, offset 是怎么实现的？](https://mp.weixin.qq.com/s?__biz=Mzg3Njc0NzUwNQ==&mid=2247483766&idx=1&sn=cb61d035c97123e6308b1a2e41ea447c&chksm=cf2ccee8f85b47fe2e60decfac2ca039ec74430fee821a9b3ee2e6b8372cff71700a2856a86b&scene=21#wechat_redirect)
