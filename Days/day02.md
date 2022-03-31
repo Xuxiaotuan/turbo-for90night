@@ -277,7 +277,7 @@ String.substring() 所返回的 String 仍然会保存原始 String
 
 所以，从以上定量的分析看来，当需要截取的字符串长度总和大于等于原始文本长度，本文所建议的方法带来的空间复杂度反而高了，而现有的 String.substring() 设计恰好可以共享原始文本从而达到节省内存的目的。反之，当所需要截取的字符串长度总和远小于原始文本长度时，用本文所推荐的方法将在很大程度上节省内存，在大文本数据处理中其优势显而易见
 
-### 已读文章
+### Thanks
 
 - [拉勾-Java 源码剖析 34 讲-第01讲：String 的特点是什么？它有哪些重要的方法？](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=59#/detail/pc?id=1761)
 - [在java中String类为什么要设计成final？](https://www.zhihu.com/question/31345592)

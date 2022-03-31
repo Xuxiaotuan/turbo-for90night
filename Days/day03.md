@@ -1,5 +1,7 @@
-## Introduction - Day 2
+## Introduction - Day 3
 
-Object.Class
 
-### 已读文章
+
+### Thanks
+
+

@@ -63,7 +63,7 @@ Common-Logging，JDBC，Dubbo等等
 >
 >最后，介绍了如何通过 optimizer trace 窥探文件排序的更多细节
 
-### 已读文章
+### Thanks
 - [x] [带你一步一步深入了解 MySQL Order By 文件排序](https://mp.weixin.qq.com/s/YBWbEahWp0uVN_n9jAFU0A)
 - [x] [MySQL 查询语句的 limit, offset 是怎么实现的？](https://mp.weixin.qq.com/s?__biz=Mzg3Njc0NzUwNQ==&mid=2247483766&idx=1&sn=cb61d035c97123e6308b1a2e41ea447c&chksm=cf2ccee8f85b47fe2e60decfac2ca039ec74430fee821a9b3ee2e6b8372cff71700a2856a86b&scene=21#wechat_redirect)
 - [x] [Mysql 分组计汇, MySQL中with rollup的用法, group by汇总](https://justcode.ikeepstudying.com/2019/03/mysql-%E5%88%86%E7%BB%84%E8%AE%A1%E6%B1%87-mysql%E4%B8%ADwith-rollup%E7%9A%84%E7%94%A8%E6%B3%95-group-by%E6%B1%87%E6%80%BB/)
