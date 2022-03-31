@@ -192,6 +192,91 @@ join()：把字符串数组转为字符串
 - String 的 intern() 方法有什么含义？
 - String 类型在 JVM（Java 虚拟机）中是如何存储的？编译器对 String 做了哪些优化？
 
+---
+由问题引起的新概念
+--常量池
+> 常量池jdk1.7以前在永生代, jdk1.7后挪除永生代，换成元空间。常量池便放在Java堆里面
+
+常量池是有一个池子，是由大小的，跟进intern（native方法）源码可知
+> 如果常量池中存在当前字符串, 就会直接返回当前字符串. 如果常量池中没有此字符串, 会将此字符串放入常量池中后, 再返回
+
+大体实现结构就是: 
+JAVA 使用 jni 调用c++实现的StringTable的intern方法, StringTable的intern方法跟Java中的HashMap的实现是差不多的, 只是不能自动扩容。默认大小是1009
+
+在jdk6中StringTable是固定的，就是1009的长度，所以如果常量池中的字符串过多就会导致效率下降很快。
+在jdk7中，StringTable的长度可以通过一个参数指定： -XX:StringTableSize=99991
+
+使用intern可以减少对象的生成，但会增加时间 （这是因为程序中每次都是用了 new String 后，然后又进行 intern 操作的耗时时间）
+
+inter的不当使用 -- （fastjson1.1.24版本以前）
+#### String 在 JVM 的存储结构
+一般而言，Java 对象在虚拟机的结构如下：
+  - 对象头（object header）：8 个字节
+  - Java 原始类型数据：如 int, float, char 等类型的数据，各类型数据占内存如表 1。
+  - 引用（reference）：4 个字节
+  - 填充符（padding）
+    如果对于 String（JDK 6）的成员变量声明如下：
+~~~java
+private final char value[];
+private final int offset;
+private final int count;
+private int hash;
+~~~
+那么因该如何计算该 String 所占的空间？
+首先计算一个空的 char 数组所占空间，在 Java 里数组也是对象，因而数组也有对象头，故一个数组所占的空间为对象头所占的空间加上数组长度，即 8 + 4 = 12 字节 , 经过填充后为 16 字节。
+那么一个空 String 所占空间为：
+对象头（8 字节）+ char 数组（16 字节）+ 3 个 int（3 × 4 = 12 字节）+1 个 char 数组的引用 (4 字节 ) = 40 字节。
+因此一个实际的 String 所占空间的计算公式如下：
+> 8*( ( 8+2*n+4+12)+7 ) / 8 = 8*(int) ( ( ( (n) *2 )+43) /8 )
+
+其中，n 为字符串长度。
+
+String.split() 或 String.substring()
+在 JDK 1.6 中 String.substring(int, int) 的源码为：
+~~~java
+public String substring(int beginIndex, int endIndex) {
+    if (beginIndex < 0) {
+    throw new StringIndexOutOfBoundsException(beginIndex);
+    }
+    if (endIndex > count) {
+    throw new StringIndexOutOfBoundsException(endIndex);
+    }
+    if (beginIndex > endIndex) {
+    throw new StringIndexOutOfBoundsException(endIndex - beginIndex);
+    }
+    return ((beginIndex == 0) && (endIndex == count)) ? this :
+    new String(offset + beginIndex, endIndex - beginIndex, value);
+}
+~~~
+调用的 String 构造函数源码为：
+~~~java
+String(int offset, int count, char value[]) {
+    this.value = value;
+    this.offset = offset;
+    this.count = count;
+}
+~~~
+String.substring() 所返回的 String 仍然会保存原始 String
+
+因此有关通过 String.split() 或 String.substring() 截取 String 的操作的结论如下：
+> 对于从大文本中截取少量字符串的应用， String.substring() 将会导致内存的过度浪费。
+> 对于从一般文本中截取一定数量的字符串，截取的字符串长度总和与原始文本长度相差不大，现有的 String.substring() 设计恰好可以共享原始文本从而达到节省内存的目的
+
+办法有很多种，在此我们采取比较直观的一种，即再次调用 newString 构造一个的仅包含截取出的字符串的 String，我们可调用 String. toCharArray () 方法：
+> String newString = new String(smallString.toCharArray());
+
+举一个极端例子，假设要从一个字符串中获取所有连续的非空子串，字符串长度为 n，如果用 JDK 本身提供的 String.substring() 方 法，则总共的连续非空子串个数为：
+
+>n+(n-1)+(n-2)+... +1 = n*(n+1)/2 =O(n2)
+
+
+由于每个子串所占的空间为常数，故空间复杂度也为 O(n2)。
+
+如果用本文建议的方法，即构造一个内容相同的新的字符串，则所需空间正比于子串的长度，则所需空间复杂度为：
+> 1*n+2*(n-1)+3*(n-2)+... +n*1 = (n3+3*n2+2*n)/6 = O(n3)
+
+所以，从以上定量的分析看来，当需要截取的字符串长度总和大于等于原始文本长度，本文所建议的方法带来的空间复杂度反而高了，而现有的 String.substring() 设计恰好可以共享原始文本从而达到节省内存的目的。反之，当所需要截取的字符串长度总和远小于原始文本长度时，用本文所推荐的方法将在很大程度上节省内存，在大文本数据处理中其优势显而易见
+
 ### 已读文章
 
 - [拉勾-Java 源码剖析 34 讲-第01讲：String 的特点是什么？它有哪些重要的方法？](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=59#/detail/pc?id=1761)
