@@ -1,12 +1,15 @@
 ## Introduction - Day 2
 
 ### String.Class
-> 1.8 String内部实际存储结构char数组
 
 1. 构造方法
 2. equals()
 3. hashCode()
 4. 其它重要方法
+
+---
+
+> 1.8 String内部实际存储结构char数组
 ~~~java
 public final class String
     implements java.io.Serializable, Comparable<String>, CharSequence {
@@ -60,9 +63,9 @@ public String(char value[]) {
  *         A {@code StringBuffer}
  */
 public String(StringBuffer buffer) {
-synchronized(buffer) {
+    synchronized(buffer) {
         this.value = Arrays.copyOf(buffer.getValue(), buffer.length());
-        }
+    }
 }
 
 /**
@@ -168,6 +171,7 @@ public int hashCode() {
 ~~~
 
 #### 4. 其它重要方法
+~~~
 compareTo()： 比较两个字符串
 indexOf()：查询字符串首次出现的下标位置
 lastIndexOf()：查询字符串最后出现的下标位置
@@ -179,7 +183,7 @@ trim()：去掉字符串首尾空格
 replace()：替换字符串中的某些字符
 split()：把字符串分割并返回字符串数组
 join()：把字符串数组转为字符串
-
+~~~
 
 **以及对应的问题**
 - 为什么 String 类型要用 final 修饰？
