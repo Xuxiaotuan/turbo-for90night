@@ -14,6 +14,8 @@
 
 - [✔️] ♾️ 1 > [Introduction](Days/day01.md)
 - [✔️] ♾️ 2 > [Introduction](Days/day02.md)
-- 
+- [✔️] ♾️ 3 > [Introduction](Days/day03.md)
+
+
 ## Thanks
 Inspired by  [90DaysOfDevOps](https://github.com/MichaelCade/)
