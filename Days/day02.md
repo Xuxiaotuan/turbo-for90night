@@ -313,6 +313,43 @@ COMPACT_STRINGS属性则是用来控制是否开启String的compact功能。默�
 改进的好处是非常明显的，首先如果项目中使用Latin-1字符集居多，内存的占用大幅度减少，同样的硬件配置可以支撑更多的业务。
 
 当内存减少之后，进一步导致减少GC次数，进而减少Stop-The-World的频次，同样会提升系统的性能。
+
+#### hashcode 方法使用 31 
+在名著 《Effective Java》第 42 页就有对 hashCode 为什么采用 31 做了说明
+> 之所以使用 31， 是因为他是一个奇素数。如果乘数是偶数，并且乘法溢出的话，信息就会丢失，因为与2相乘等价于移位运算（低位补0）。使用素数的好处并不很明显，但是习惯上使用素数来计算散列结果。
+> 31 有个很好的性能，即用移位和减法来代替乘法，可以得到更好的性能： 31 * i == (i << 5）- i， 现代的 VM 可以自动完成这种优化。这个公式可以很简单的推导出来。
+
+和stackoverfolw最高赞回答一样
+>The value 31 was chosen because it is an odd prime. If it were even and the multiplication overflowed, information would be lost, as multiplication by 2 is equivalent to shifting. 
+> The advantage of using a prime is less clear, but it is traditional.
+> A nice property of 31 is that the multiplication can be replaced by a shift and a subtraction for better performance: 31 * i == (i << 5) - i. 
+> Modern VMs do this sort of optimization automatically.
+
+还有一个在stackoverflow里面的高赞回答是
+> Goodrich and Tamassia computed from over 50,000 English words (formed as the union of the word lists provided in two variants of Unix)
+> that using the constants 31, 33, 37, 39, and 41 will produce fewer than 7 collisions in each case. 
+> This may be the reason that so many Java implementations choose such constants.
+
+所谓素数：质数又称素数，指在一个大于1的自然数中，除了1和此整数自身外，没法被其他自然数整除的数。
+素数在使用的时候有一个作用就是，如果我用一个数字来乘以这个素数，那么最终的出来的结果只能被素数本身和被乘数还有1来整除！
+如：我们选择素数3来做系数，那么3*n只能被3和n或者1来整除，我们可以很容易的通过3n来计算出这个n来。这应该也是一个原因！
+
+2, 3, 5, 7, 17, 31, 32, 33, 39, 41, 101,199
+
+具体计算不累赘的诉说了，直接说结果如下：
+
+**Hash碰撞概率计算**
+乘数是2时，hash的取值范围比较小，基本是堆积到一个范围内了，后面内容会看到这块的展示。
+乘数是3、5、7、17等，都有较大的碰撞概率
+乘数是31的时候，碰撞的概率已经很小了，基本稳定。
+顺着往下看，你会发现199的碰撞概率更小，这就相当于一排奇数的茅坑量多，自然会减少碰撞。但这个范围值已经远超过int的取值范围了，如果用此数作为乘数，又返回int值，就会丢失数据信息。
+
+**哈希散列**
+- 乘数是2的时候，散列的结果基本都堆积在中间，没有很好的散列。
+- 乘数是31的时候，散列的效果就非常明显了，基本在每个范围都有数据存放。
+- 乘数是199是不能用的散列结果，但是它的数据是更加分散的，从图上能看到有两个小山包。但因为数据区间问题会有数据丢失问题，所以不能选择。
+- 大质数101的表现，不难看出，质数101作为乘子时，算出的哈希值分布情况要好于主角31，有点喧宾夺主的意思。不过不可否认的是，质数101的作为乘子时，哈希值的分布性确实更加均匀。所以如果不在意质数101容易导致数据信息丢失问题，或许其是一个更好的选择。
+
 ### Thanks
 
 - [拉勾-Java 源码剖析 34 讲-第01讲：String 的特点是什么？它有哪些重要的方法？](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=59#/detail/pc?id=1761)
@@ -324,3 +361,6 @@ COMPACT_STRINGS属性则是用来控制是否开启String的compact功能。默�
 - [Java编译器中对String对象的优化](https://blog.csdn.net/tolcf/article/details/45578771)
 - [String、StringBuffer和StringBuilder的区别](https://segmentfault.com/a/1190000022038238)
 - [JDK9对String字符串的新一轮优化，不可不知](https://mp.weixin.qq.com/s/p1Q5AZWETUtajqtY2GUMtA)
+- [hashCode 为什么乘以 31？深入理解 hashCode 和 hash 算法](https://cloud.tencent.com/developer/article/1446021)
+- [why-does-javas-hashcode-in-string-use-31-as-a-multiplier](https://stackoverflow.com/questions/299304/why-does-javas-hashcode-in-string-use-31-as-a-multiplier)
+- [String hashCode 方法为什么选择数字31作为乘子](https://www.tianxiaobo.com/2018/01/18/String-hashCode-%E6%96%B9%E6%B3%95%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9%E6%95%B0%E5%AD%9731%E4%BD%9C%E4%B8%BA%E4%B9%98%E5%AD%90/)
