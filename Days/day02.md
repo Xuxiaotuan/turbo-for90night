@@ -277,6 +277,42 @@ String.substring() 所返回的 String 仍然会保存原始 String
 
 所以，从以上定量的分析看来，当需要截取的字符串长度总和大于等于原始文本长度，本文所建议的方法带来的空间复杂度反而高了，而现有的 String.substring() 设计恰好可以共享原始文本从而达到节省内存的目的。反之，当所需要截取的字符串长度总和远小于原始文本长度时，用本文所推荐的方法将在很大程度上节省内存，在大文本数据处理中其优势显而易见
 
+
+---
+#### JDk9对String的优化 
+> 到了JDK9，String中字符串的存储不再用char数组了，改用byte数组。而且新增了一个coder的成员变量 和 COMPACT_STRINGS
+
+~~~java
+public final class String
+implements java.io.Serializable, Comparable<String>, CharSequence {
+
+    @Stable
+    private final byte[] value;
+
+    private final byte coder;
+    
+    @Native static final byte LATIN1 = 0;
+    @Native static final byte UTF16  = 1;
+    
+    static final boolean COMPACT_STRINGS;
+}
+~~~
+
+在程序中，绝大多数字符串只包含英文字母数字等字符，使用Latin-1编码，一个字符占用一个byte。如果使用char，一个char要占用两个byte，会占用双倍的内存空间。
+
+但是，如果字符串中使用了中文等超出Latin-1表示范围的字符，使用Latin-1就没办法表示了。这时JDK会使用UTF-16编码，那么占用的空间和旧版（使用char[]）是一样的。
+
+coder变量代表编码的格式，目前String支持两种编码格式Latin-1和UTF-16。Latin-1需要用一个字节来存储，而UTF-16需要使用2个字节或者4个字节来存储。
+
+据说这一改进方案是JDK的开发人员用大数据和人工能智能，调研了成千上万的应用程序的heapdump信息后，得出：大部分的String都是以Latin-1字符编码来表示的，只需要一个字节存储就够了，两个字节完全是浪费。
+
+COMPACT_STRINGS属性则是用来控制是否开启String的compact功能。默认情况下是开启的。可以使用-XX:-CompactStrings参数来对此功能进行关闭。
+
+
+**改进的好处**
+改进的好处是非常明显的，首先如果项目中使用Latin-1字符集居多，内存的占用大幅度减少，同样的硬件配置可以支撑更多的业务。
+
+当内存减少之后，进一步导致减少GC次数，进而减少Stop-The-World的频次，同样会提升系统的性能。
 ### Thanks
 
 - [拉勾-Java 源码剖析 34 讲-第01讲：String 的特点是什么？它有哪些重要的方法？](https://kaiwu.lagou.com/course/courseInfo.htm?courseId=59#/detail/pc?id=1761)
@@ -287,3 +323,4 @@ String.substring() 所返回的 String 仍然会保存原始 String
 - [Java 性能优化之 String 篇](https://www.yelcat.cc/index.php/archives/863/)
 - [Java编译器中对String对象的优化](https://blog.csdn.net/tolcf/article/details/45578771)
 - [String、StringBuffer和StringBuilder的区别](https://segmentfault.com/a/1190000022038238)
+- [JDK9对String字符串的新一轮优化，不可不知](https://mp.weixin.qq.com/s/p1Q5AZWETUtajqtY2GUMtA)
