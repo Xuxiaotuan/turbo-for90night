@@ -16,6 +16,16 @@
 -[ ] Docker
 -[ ] K8s
 
+### k8s
+- [kubernetes-bootcamp](https://kubernetesbootcamp.github.io/kubernetes-bootcamp/index.html)
+- [k8s-bootcamp](https://github.com/jungho/k8s-bootcamp)
+- [kubeasz](https://github.com/easzlab/kubeasz)
+---
+lang: String,Object,StringBuffer,StringBuilder,Integer,BigBigIntegerInteger这些类。
+util: ArrayList,HashMap,LinkedHashMap,LinkedList,HashTable,HashSet。
+Timer/TimerTask
+Junit
+
 ## Progress
 
 -[X] ♾️ 1 > [Introduction](Days/day01.md)
